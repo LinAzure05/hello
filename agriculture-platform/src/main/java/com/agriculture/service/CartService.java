@@ -9,4 +9,5 @@ public interface CartService {
     boolean updateQuantity(Long cartItemId, Integer quantity);
     boolean removeFromCart(Long cartItemId);
     boolean clearCart(Long customerId);
+    boolean checkout(Long customerId);
 }

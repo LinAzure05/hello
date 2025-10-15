@@ -8,4 +8,5 @@ public interface ProductService {
     List<Product> getFeaturedProducts();
     Product getProductById(Long productId);
     List<Product> getProductsByMerchant(Long merchantId);
+    boolean reduceStock(Long productId, int quantity);
 }

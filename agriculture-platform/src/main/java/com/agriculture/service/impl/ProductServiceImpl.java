@@ -33,4 +33,12 @@ public class ProductServiceImpl implements ProductService {
     public List<Product> getProductsByMerchant(Long merchantId) {
         return productMapper.findByMerchantId(merchantId);
     }
+
+    @Override
+    public boolean reduceStock(Long productId, int quantity) {
+        if (productId == null || quantity <= 0) {
+            return false;
+        }
+        return productMapper.decreaseStock(productId, quantity) > 0;
+    }
 }
