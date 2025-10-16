@@ -32,18 +32,18 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-success">
     <div class="container">
-        <a class="navbar-brand" href="/">🌱 助农服务平台</a>
+        <a class="navbar-brand" th:href="@{/}">🌱 助农服务平台</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#merchantNavbar">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="merchantNavbar">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="/">首页</a></li>
-                <li class="nav-item"><a class="nav-link" href="/product/list">农产品商城</a></li>
-                <li class="nav-item"><a class="nav-link" href="/cart">购物车</a></li>
-                <li class="nav-item"><a class="nav-link" href="/merchant/dashboard">商家中心</a></li>
-                <li class="nav-item"><a class="nav-link active" href="/merchant/products">农产品管理</a></li>
-                <li class="nav-item"><a class="nav-link" href="/logout">退出</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/}">首页</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/product/list}">农产品商城</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/cart}">购物车</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/merchant/dashboard}">商家中心</a></li>
+                <li class="nav-item"><a class="nav-link active" th:href="@{/merchant/products}">农产品管理</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/logout}">退出</a></li>
             </ul>
         </div>
     </div>
@@ -52,14 +52,14 @@
 <div class="container my-4">
     <div class="d-flex align-items-center justify-content-between mb-3">
         <div>
-            <a href="/merchant/products" class="btn btn-link btn-back">← 返回列表</a>
+            <a th:href="@{/merchant/products}" class="btn btn-link btn-back">← 返回列表</a>
             <h2 class="mt-2 mb-0" th:text="${formTitle}">农产品表单</h2>
             <p class="text-muted mb-0">完善商品信息，确保用户能够快速了解您的农产品。</p>
         </div>
     </div>
 
     <div class="form-card">
-        <form th:action="${isEdit} ? @{'/merchant/products/' + ${product.productId}} : @{/merchant/products}"
+        <form th:action="${isEdit} ? @{/merchant/products/{id}(id=${product.productId})} : @{/merchant/products}"
               th:object="${product}" method="post">
             <div class="row g-4">
                 <div class="col-md-6">
@@ -112,7 +112,7 @@
             </div>
 
             <div class="d-flex justify-content-end mt-4">
-                <a href="/merchant/products" class="btn btn-outline-secondary me-2">取消</a>
+                <a th:href="@{/merchant/products}" class="btn btn-outline-secondary me-2">取消</a>
                 <button type="submit" class="btn btn-success" th:text="${isEdit} ? '保存修改' : '创建商品'"></button>
             </div>
         </form>
