@@ -33,8 +33,8 @@ public interface ProductMapper {
     int decreaseStock(@Param("productId") Long productId, @Param("quantity") int quantity);
 
     @Insert({
-            "INSERT INTO products (product_name, description, merchant_id, price, stock_quantity, unit, main_image, tags, is_featured, status, create_time, update_time)",
-            "VALUES (#{productName}, #{description}, #{merchantId}, #{price}, #{stockQuantity}, #{unit}, #{mainImage}, #{tags}, #{isFeatured}, #{status}, GETDATE(), GETDATE())"
+            "INSERT INTO products (product_name, description, merchant_id, price, stock_quantity, unit, main_image, tags, is_featured, status, create_time)",
+            "VALUES (#{productName}, #{description}, #{merchantId}, #{price}, #{stockQuantity}, #{unit}, #{mainImage}, #{tags}, #{isFeatured}, #{status}, GETDATE())"
     })
     @Options(useGeneratedKeys = true, keyProperty = "productId")
     int insert(Product product);
@@ -49,16 +49,14 @@ public interface ProductMapper {
             "    main_image = #{mainImage},",
             "    tags = #{tags},",
             "    is_featured = #{isFeatured},",
-            "    status = #{status},",
-            "    update_time = GETDATE()",
+            "    status = #{status}",
             "WHERE product_id = #{productId} AND merchant_id = #{merchantId}"
     })
     int updateProduct(Product product);
 
     @Update({
             "UPDATE products",
-            "SET status = #{status},",
-            "    update_time = GETDATE()",
+            "SET status = #{status}",
             "WHERE product_id = #{productId} AND merchant_id = #{merchantId}"
     })
     int updateStatus(@Param("productId") Long productId,

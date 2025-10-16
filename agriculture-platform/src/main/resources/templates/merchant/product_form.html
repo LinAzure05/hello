@@ -61,6 +61,7 @@
     <div class="form-card">
         <form th:action="${isEdit} ? @{/merchant/products/{id}(id=${product.productId})} : @{/merchant/products}"
               th:object="${product}" method="post">
+            <input type="hidden" th:field="*{isFeatured}">
             <div class="row g-4">
                 <div class="col-md-6">
                     <label class="form-label">商品名称<span class="text-danger">*</span></label>
@@ -85,13 +86,6 @@
                 <div class="col-md-6">
                     <label class="form-label">标签</label>
                     <input type="text" class="form-control" th:field="*{tags}" placeholder="例如：有机, 新鲜">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">是否推荐</label>
-                    <div class="form-check form-switch mt-1">
-                        <input class="form-check-input" type="checkbox" th:field="*{isFeatured}">
-                        <label class="form-check-label">在首页展示为推荐商品</label>
-                    </div>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">商品状态</label>
