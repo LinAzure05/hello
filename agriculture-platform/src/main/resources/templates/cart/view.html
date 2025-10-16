@@ -112,9 +112,14 @@
                 <!-- 购物车商品项 -->
                 <div th:each="cartItem : ${cartItems}" class="row align-items-center mb-4 pb-3 border-bottom cart-item">
                     <div class="col-md-5 d-flex align-items-center">
-                        <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                        <div class="rounded overflow-hidden d-flex align-items-center justify-content-center bg-light"
                              style="height: 100px; width: 100px;">
-                            <span class="text-muted">商品图片</span>
+                            <img th:if="${cartItem.mainImage}"
+                                 th:src="@{${cartItem.mainImage}}"
+                                 th:alt="${cartItem.productName}"
+                                 class="img-fluid h-100 w-100"
+                                 style="object-fit: cover;">
+                            <span th:unless="${cartItem.mainImage}" class="text-muted">暂无图片</span>
                         </div>
                         <div class="ms-3">
                             <h6 class="mb-2" th:text="${cartItem.productName}">商品名称</h6>

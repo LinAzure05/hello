@@ -11,10 +11,11 @@ public class CartViewItem {
     private final Integer quantity;
     private final Integer stockQuantity;
     private final String unit;
+    private final String mainImage;
     private final BigDecimal subtotal;
 
     public CartViewItem(Long cartItemId, Long productId, String productName, String description,
-                        BigDecimal price, Integer quantity, Integer stockQuantity, String unit) {
+                        BigDecimal price, Integer quantity, Integer stockQuantity, String unit, String mainImage) {
         this.cartItemId = cartItemId;
         this.productId = productId;
         this.productName = productName;
@@ -23,6 +24,7 @@ public class CartViewItem {
         this.quantity = quantity != null ? quantity : 0;
         this.stockQuantity = stockQuantity;
         this.unit = unit != null ? unit : "";
+        this.mainImage = mainImage;
         this.subtotal = this.price.multiply(BigDecimal.valueOf(this.quantity.longValue()));
     }
 
@@ -56,6 +58,10 @@ public class CartViewItem {
 
     public String getUnit() {
         return unit;
+    }
+
+    public String getMainImage() {
+        return mainImage;
     }
 
     public BigDecimal getSubtotal() {

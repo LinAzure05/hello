@@ -42,6 +42,7 @@ public class CartController {
             BigDecimal price = product.getPrice() != null ? product.getPrice() : BigDecimal.ZERO;
             Integer stock = product.getStockQuantity();
             String unit = product.getUnit() != null ? product.getUnit() : "";
+            String mainImage = product.getMainImage();
             String description = product.getDescription() != null ? product.getDescription() : "商品描述信息待完善";
             String productName = product.getProductName() != null ? product.getProductName() : "商品" + cartItem.getProductId();
 
@@ -53,7 +54,8 @@ public class CartController {
                     price,
                     cartItem.getQuantity() != null ? cartItem.getQuantity() : 0,
                     stock,
-                    unit
+                    unit,
+                    mainImage
             ));
         }
 
