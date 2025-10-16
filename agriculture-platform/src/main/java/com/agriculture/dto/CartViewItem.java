@@ -24,7 +24,7 @@ public class CartViewItem {
         this.quantity = quantity != null ? quantity : 0;
         this.stockQuantity = stockQuantity;
         this.unit = unit != null ? unit : "";
-        this.mainImage = mainImage;
+        this.mainImage = (mainImage != null && !mainImage.isBlank()) ? mainImage : null;
         this.subtotal = this.price.multiply(BigDecimal.valueOf(this.quantity.longValue()));
     }
 

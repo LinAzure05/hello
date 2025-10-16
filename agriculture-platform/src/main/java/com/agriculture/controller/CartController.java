@@ -43,6 +43,9 @@ public class CartController {
             Integer stock = product.getStockQuantity();
             String unit = product.getUnit() != null ? product.getUnit() : "";
             String mainImage = product.getMainImage();
+            if (mainImage != null && mainImage.isBlank()) {
+                mainImage = null;
+            }
             String description = product.getDescription() != null ? product.getDescription() : "商品描述信息待完善";
             String productName = product.getProductName() != null ? product.getProductName() : "商品" + cartItem.getProductId();
 
