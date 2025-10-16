@@ -59,7 +59,7 @@ public class MerchantController {
         model.addAttribute("formTitle", "新增农产品");
         model.addAttribute("product", product);
         model.addAttribute("isEdit", false);
-        return "merchant/product_form";
+        return "merchant/product-form";
     }
 
     @PostMapping("/products")
@@ -103,7 +103,7 @@ public class MerchantController {
         model.addAttribute("formTitle", "编辑农产品");
         model.addAttribute("product", product);
         model.addAttribute("isEdit", true);
-        return "merchant/product_form";
+        return "merchant/product-form";
     }
 
     @PostMapping("/products/{id}")
