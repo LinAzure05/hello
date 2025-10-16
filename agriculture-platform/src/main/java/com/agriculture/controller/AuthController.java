@@ -4,6 +4,7 @@ import com.agriculture.dto.LoginDTO;
 import com.agriculture.dto.RegisterDTO;
 import com.agriculture.entity.User;
 import com.agriculture.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -56,14 +57,24 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String loginUser(@ModelAttribute LoginDTO loginDTO, Model model) {
+    public String loginUser(@ModelAttribute LoginDTO loginDTO, Model model, HttpSession session) {
         User user = userService.findByUsername(loginDTO.getUsername());
-        if (user != null && user.getPassword().equals(loginDTO.getPassword())) {
-            // 登录成功，直接跳转到商品列表页
-            return "redirect:/product/list";
-        } else {
+        if (user == null || !user.getPassword().equals(loginDTO.getPassword())) {
             model.addAttribute("errorMessage", "用户名或密码错误！");
             return "login";
+        }
+
+        String userType = user.getUserType() != null ? user.getUserType().toUpperCase() : "";
+        session.setAttribute("currentUser", user);
+        session.setAttribute("currentUserId", user.getUserId());
+        session.setAttribute("currentUserType", userType);
+        switch (userType) {
+            case "CUSTOMER":
+                return "redirect:/product/list";
+            case "MERCHANT":
+                return "redirect:/merchant/dashboard";
+            default:
+                return "redirect:/dashboard";
         }
     }
 
@@ -71,5 +82,13 @@ public class AuthController {
     public String showDashboard() {
         // 暂时重定向到商品列表页
         return "redirect:/product/list";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        if (session != null) {
+            session.invalidate();
+        }
+        return "redirect:/login";
     }
 }

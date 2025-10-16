@@ -1,116 +1,218 @@
 package com.agriculture.service.impl;
 
 import com.agriculture.entity.CartItem;
-import com.agriculture.mapper.CartMapper;
+import com.agriculture.entity.Product;
 import com.agriculture.service.CartService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.agriculture.service.ProductService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class CartServiceImpl implements CartService {
 
-    @Autowired
-    private CartMapper cartMapper;
+    private final Map<Long, Map<Long, CartItem>> customerCarts = new ConcurrentHashMap<>();
+    private final Map<Long, Long> cartIndex = new ConcurrentHashMap<>();
+    private final AtomicLong idGenerator = new AtomicLong(1);
+    private final ProductService productService;
+
+    public CartServiceImpl(ProductService productService) {
+        this.productService = productService;
+    }
 
     @Override
     public boolean addToCart(Long customerId, Long productId, Integer quantity) {
-        try {
-            System.out.println("=== 开始添加购物车 ===");
-            System.out.println("用户ID: " + customerId);
-            System.out.println("商品ID: " + productId);
-            System.out.println("数量: " + quantity);
+        if (customerId == null || productId == null || quantity == null || quantity <= 0) {
+            return false;
+        }
 
-            // 检查是否已存在购物车中
-            System.out.println("检查是否已存在购物车中...");
-            CartItem existingItem = cartMapper.findByCustomerIdAndProductId(customerId, productId);
-            System.out.println("已存在商品: " + existingItem);
+        Map<Long, CartItem> cart = customerCarts.computeIfAbsent(customerId, key -> new ConcurrentHashMap<>());
+        synchronized (cart) {
+            Product product = productService.getProductById(productId);
+            if (product == null) {
+                return false;
+            }
+
+            int availableStock = normalizeStock(product.getStockQuantity());
+
+            CartItem existingItem = cart.values().stream()
+                    .filter(item -> productId.equals(item.getProductId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (availableStock != Integer.MAX_VALUE && quantity > availableStock) {
+                return false;
+            }
 
             if (existingItem != null) {
-                // 更新数量
-                System.out.println("更新已有商品数量...");
-                existingItem.setQuantity(existingItem.getQuantity() + quantity);
-                int result = cartMapper.updateQuantity(existingItem);
-                System.out.println("更新结果: " + result);
-                return result > 0;
+                int newQuantity = existingItem.getQuantity() + quantity;
+                if (availableStock != Integer.MAX_VALUE && newQuantity > availableStock) {
+                    return false;
+                }
+                existingItem.setQuantity(newQuantity);
+                existingItem.setUpdateTime(LocalDateTime.now());
             } else {
-                // 新增
-                System.out.println("添加新商品到购物车...");
                 CartItem newItem = new CartItem();
+                long newId = idGenerator.getAndIncrement();
+                LocalDateTime now = LocalDateTime.now();
+
+                newItem.setCartItemId(newId);
                 newItem.setCustomerId(customerId);
                 newItem.setProductId(productId);
                 newItem.setQuantity(quantity);
-                int result = cartMapper.insert(newItem);
-                System.out.println("新增结果: " + result);
-                System.out.println("影响行数: " + result);
-                return result > 0;
+                newItem.setCreateTime(now);
+                newItem.setUpdateTime(now);
+
+                cart.put(newId, newItem);
+                cartIndex.put(newId, customerId);
             }
-        } catch (Exception e) {
-            System.out.println("!!! 添加购物车异常 !!!");
-            System.out.println("异常信息: " + e.getMessage());
-            e.printStackTrace();
-            return false;
         }
+        return true;
     }
 
     @Override
     public List<CartItem> getCartItems(Long customerId) {
-        try {
-            System.out.println("获取购物车商品，用户ID: " + customerId);
-            List<CartItem> items = cartMapper.findByCustomerId(customerId);
-            System.out.println("找到 " + items.size() + " 个商品");
-            return items;
-        } catch (Exception e) {
-            System.out.println("获取购物车异常: " + e.getMessage());
-            return List.of(); // 返回空列表
+        Map<Long, CartItem> cart = customerCarts.get(customerId);
+        if (cart == null || cart.isEmpty()) {
+            return List.of();
         }
+        return new ArrayList<>(cart.values());
     }
 
     @Override
     public boolean updateQuantity(Long cartItemId, Integer quantity) {
-        try {
-            System.out.println("更新购物车商品数量");
-            System.out.println("购物车项ID: " + cartItemId);
-            System.out.println("新数量: " + quantity);
-
-            CartItem cartItem = new CartItem();
-            cartItem.setCartItemId(cartItemId);
-            cartItem.setQuantity(quantity);
-            int result = cartMapper.updateQuantity(cartItem);
-            System.out.println("更新结果: " + result);
-            return result > 0;
-        } catch (Exception e) {
-            System.out.println("更新数量异常: " + e.getMessage());
+        if (cartItemId == null || quantity == null || quantity <= 0) {
             return false;
         }
+
+        Long customerId = cartIndex.get(cartItemId);
+        if (customerId == null) {
+            return false;
+        }
+
+        Map<Long, CartItem> cart = customerCarts.get(customerId);
+        if (cart == null) {
+            return false;
+        }
+
+        CartItem item = cart.get(cartItemId);
+        if (item == null) {
+            return false;
+        }
+
+        synchronized (cart) {
+            Product product = productService.getProductById(item.getProductId());
+            if (product == null) {
+                cart.remove(cartItemId);
+                cartIndex.remove(cartItemId);
+                return false;
+            }
+
+            int availableStock = normalizeStock(product.getStockQuantity());
+            if (quantity > item.getQuantity()) {
+                if (availableStock != Integer.MAX_VALUE && quantity > availableStock) {
+                    return false;
+                }
+            }
+
+            item.setQuantity(quantity);
+            item.setUpdateTime(LocalDateTime.now());
+        }
+        return true;
     }
 
     @Override
     public boolean removeFromCart(Long cartItemId) {
-        try {
-            System.out.println("删除购物车商品");
-            System.out.println("购物车项ID: " + cartItemId);
-
-            int result = cartMapper.deleteById(cartItemId);
-            System.out.println("删除结果: " + result);
-            return result > 0;
-        } catch (Exception e) {
-            System.out.println("删除异常: " + e.getMessage());
+        if (cartItemId == null) {
             return false;
         }
+
+        Long customerId = cartIndex.remove(cartItemId);
+        if (customerId != null) {
+            Map<Long, CartItem> cart = customerCarts.get(customerId);
+            if (cart == null) {
+                return false;
+            }
+            synchronized (cart) {
+                CartItem removed = cart.remove(cartItemId);
+                return removed != null;
+            }
+        }
+
+        for (Map.Entry<Long, Map<Long, CartItem>> entry : customerCarts.entrySet()) {
+            Map<Long, CartItem> cart = entry.getValue();
+            synchronized (cart) {
+                if (cart.remove(cartItemId) != null) {
+                    cartIndex.remove(cartItemId);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
     public boolean clearCart(Long customerId) {
-        try {
-            System.out.println("清空购物车，用户ID: " + customerId);
-            int result = cartMapper.clearCart(customerId);
-            System.out.println("清空结果: " + result);
-            return result > 0;
-        } catch (Exception e) {
-            System.out.println("清空异常: " + e.getMessage());
+        if (customerId == null) {
             return false;
         }
+
+        Map<Long, CartItem> cart = customerCarts.remove(customerId);
+        if (cart == null || cart.isEmpty()) {
+            return true;
+        }
+
+        cart.keySet().forEach(cartIndex::remove);
+        return true;
+    }
+
+    @Override
+    public boolean checkout(Long customerId) {
+        if (customerId == null) {
+            return false;
+        }
+
+        Map<Long, CartItem> cart = customerCarts.get(customerId);
+        if (cart == null || cart.isEmpty()) {
+            return false;
+        }
+
+        List<CartItem> items;
+        synchronized (cart) {
+            if (cart.isEmpty()) {
+                return false;
+            }
+            items = new ArrayList<>(cart.values());
+        }
+
+        for (CartItem item : items) {
+            Product product = productService.getProductById(item.getProductId());
+            int availableStock = product == null ? 0 : normalizeStock(product.getStockQuantity());
+            if (product == null || (availableStock != Integer.MAX_VALUE && item.getQuantity() > availableStock)) {
+                return false;
+            }
+        }
+
+        for (CartItem item : items) {
+            boolean updated = productService.reduceStock(item.getProductId(), item.getQuantity());
+            if (!updated) {
+                return false;
+            }
+        }
+
+        clearCart(customerId);
+        return true;
+    }
+
+    private int normalizeStock(Integer stockQuantity) {
+        if (stockQuantity == null) {
+            return Integer.MAX_VALUE;
+        }
+        return Math.max(stockQuantity, 0);
     }
 }
