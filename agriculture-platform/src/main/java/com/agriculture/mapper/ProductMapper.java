@@ -23,7 +23,8 @@ public interface ProductMapper {
     @Select("SELECT * FROM products WHERE is_featured = 1 AND status = 'ACTIVE'")
     List<Product> findFeaturedProducts();
 
-    @Update("UPDATE products SET stock_quantity = stock_quantity - #{quantity} " +
-            "WHERE product_id = #{productId} AND stock_quantity >= #{quantity}")
+    @Update("UPDATE products "
+            + "SET stock_quantity = stock_quantity - #{quantity} "
+            + "WHERE product_id = #{productId} AND stock_quantity >= #{quantity}")
     int decreaseStock(@Param("productId") Long productId, @Param("quantity") int quantity);
 }
