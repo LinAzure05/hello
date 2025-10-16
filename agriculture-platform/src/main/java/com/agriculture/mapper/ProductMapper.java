@@ -30,12 +30,12 @@ public interface ProductMapper {
             + "WHERE product_id = #{productId} AND stock_quantity >= #{quantity}")
     int decreaseStock(@Param("productId") Long productId, @Param("quantity") int quantity);
 
-    @Insert("INSERT INTO products (product_name, description, category_id, merchant_id, price, stock_quantity, unit, main_image, images, tags, is_featured, status, create_time, update_time) "
-            + "VALUES (#{productName}, #{description}, #{categoryId}, #{merchantId}, #{price}, #{stockQuantity}, #{unit}, #{mainImage}, #{images}, #{tags}, #{isFeatured}, #{status}, GETDATE(), GETDATE())")
+    @Insert("INSERT INTO products (product_name, description, merchant_id, price, stock_quantity, unit, main_image, images, tags, is_featured, status, create_time, update_time) "
+            + "VALUES (#{productName}, #{description}, #{merchantId}, #{price}, #{stockQuantity}, #{unit}, #{mainImage}, #{images}, #{tags}, #{isFeatured}, #{status}, GETDATE(), GETDATE())")
     @Options(useGeneratedKeys = true, keyProperty = "productId")
     int insert(Product product);
 
-    @Update("UPDATE products SET product_name = #{productName}, description = #{description}, category_id = #{categoryId}, price = #{price}, stock_quantity = #{stockQuantity}, unit = #{unit}, main_image = #{mainImage}, images = #{images}, tags = #{tags}, is_featured = #{isFeatured}, status = #{status}, update_time = GETDATE() WHERE product_id = #{productId} AND merchant_id = #{merchantId}")
+    @Update("UPDATE products SET product_name = #{productName}, description = #{description}, price = #{price}, stock_quantity = #{stockQuantity}, unit = #{unit}, main_image = #{mainImage}, images = #{images}, tags = #{tags}, is_featured = #{isFeatured}, status = #{status}, update_time = GETDATE() WHERE product_id = #{productId} AND merchant_id = #{merchantId}")
     int updateProduct(Product product);
 
     @Update("UPDATE products SET status = #{status}, update_time = GETDATE() WHERE product_id = #{productId} AND merchant_id = #{merchantId}")
