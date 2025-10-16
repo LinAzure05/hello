@@ -33,8 +33,8 @@ public interface ProductMapper {
     int decreaseStock(@Param("productId") Long productId, @Param("quantity") int quantity);
 
     @Insert({
-            "INSERT INTO products (product_name, description, merchant_id, price, stock_quantity, unit, main_image, images, tags, is_featured, status, create_time, update_time)",
-            "VALUES (#{productName}, #{description}, #{merchantId}, #{price}, #{stockQuantity}, #{unit}, #{mainImage}, #{images}, #{tags}, #{isFeatured}, #{status}, GETDATE(), GETDATE())"
+            "INSERT INTO products (product_name, description, merchant_id, price, stock_quantity, unit, main_image, tags, is_featured, status, create_time, update_time)",
+            "VALUES (#{productName}, #{description}, #{merchantId}, #{price}, #{stockQuantity}, #{unit}, #{mainImage}, #{tags}, #{isFeatured}, #{status}, GETDATE(), GETDATE())"
     })
     @Options(useGeneratedKeys = true, keyProperty = "productId")
     int insert(Product product);
@@ -47,7 +47,6 @@ public interface ProductMapper {
             "    stock_quantity = #{stockQuantity},",
             "    unit = #{unit},",
             "    main_image = #{mainImage},",
-            "    images = #{images},",
             "    tags = #{tags},",
             "    is_featured = #{isFeatured},",
             "    status = #{status},",
