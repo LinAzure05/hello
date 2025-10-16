@@ -58,12 +58,19 @@ public class AuthController {
     @PostMapping("/login")
     public String loginUser(@ModelAttribute LoginDTO loginDTO, Model model) {
         User user = userService.findByUsername(loginDTO.getUsername());
-        if (user != null && user.getPassword().equals(loginDTO.getPassword())) {
-            // 登录成功，直接跳转到商品列表页
-            return "redirect:/product/list";
-        } else {
+        if (user == null || !user.getPassword().equals(loginDTO.getPassword())) {
             model.addAttribute("errorMessage", "用户名或密码错误！");
             return "login";
+        }
+
+        String userType = user.getUserType() != null ? user.getUserType().toUpperCase() : "";
+        switch (userType) {
+            case "CUSTOMER":
+                return "redirect:/product/list";
+            case "MERCHANT":
+                return "redirect:/merchant/dashboard";
+            default:
+                return "redirect:/dashboard";
         }
     }
 
