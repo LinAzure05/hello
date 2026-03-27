@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>助农服务平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-success">
+    <div class="container">
+        <a class="navbar-brand" href="/">助农服务平台</a>
+        <div class="navbar-nav">
+            <a class="nav-link" href="/">首页</a>
+            <a class="nav-link" href="/login">登录</a>
+            <a class="nav-link" href="/register">注册</a>
+            <a class="nav-link" href="/about">关于我们</a>
+        </div>
+    </div>
+</nav>
+
+<!-- 主内容 -->
+<div class="container mt-4">
+    <div class="jumbotron bg-light p-5 rounded">
+        <h1 class="display-4" th:text="${welcomeMessage}">欢迎来到助农服务平台</h1>
+        <p class="lead">连接农民与消费者，让优质农产品直达餐桌</p>
+        <hr class="my-4">
+        <p>我们致力于帮助农民销售优质农产品，为消费者提供新鲜、安全的食品。</p>
+        <a class="btn btn-success btn-lg" href="/register" role="button">立即加入</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
